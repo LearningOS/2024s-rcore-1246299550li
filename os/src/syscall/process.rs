@@ -4,6 +4,7 @@ use crate::{
     task::{exit_current_and_run_next, suspend_current_and_run_next, TaskStatus},
     timer::get_time_us,
 };
+use crate::task::{get_current_task_status, get_current_task_time_since_first_run, get_task_syscall_times};
 
 #[repr(C)]
 #[derive(Debug)]
@@ -51,7 +52,18 @@ pub fn sys_get_time(ts: *mut TimeVal, _tz: usize) -> isize {
 }
 
 /// YOUR JOB: Finish sys_task_info to pass testcases
+/// 查询当前正在执行的任务信息
+/// 任务控制块相关信息（任务状态）
+/// 任务使用的系统调用及调用次数
+/// 系统调用时刻距离任务第一次被调度时刻的时长（单位ms）。
 pub fn sys_task_info(_ti: *mut TaskInfo) -> isize {
     trace!("kernel: sys_task_info");
-    -1
+    unsafe {
+        *_ti = TaskInfo {
+            status: get_current_task_status(),
+            syscall_times: get_task_syscall_times(),
+            time: get_current_task_time_since_first_run(),
+        }
+    }
+    0
 }
