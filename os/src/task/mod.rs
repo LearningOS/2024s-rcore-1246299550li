@@ -157,6 +157,9 @@ impl TaskManager {
 
     /// 统计系统调用数
     fn count_syscall(&self, syscall_id: usize) {
+        if syscall_id > MAX_SYSCALL_NUM {
+            return;
+        }
         let mut inner = self.inner.exclusive_access();
         let current = inner.current_task;
         inner.tasks[current].task_syscall_times[syscall_id] += 1;
